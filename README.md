@@ -1,5 +1,8 @@
 # SkillFactory Data Science Course
 
+### Projects
+0. [Guess The Number](project 00 - github/guess-the-number.ipynb)
+
 
 ### Useful Links
 
