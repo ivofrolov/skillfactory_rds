@@ -1,9 +1,3 @@
-# SkillFactory Data Science Course
+### Проекты курса по Data Science
 
-### Projects
-0. [Guess The Number](project%2000%20-%20github/guess-the-number.ipynb)
-
-
-### Useful Links
-
-* [learn pandas](https://devpractice.ru/category/machine-learning-and-data-analysis/pandas/)
+0. [Угадай число](project%2000%20-%20github/)
