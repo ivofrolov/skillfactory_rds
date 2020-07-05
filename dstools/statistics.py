@@ -36,3 +36,12 @@ def loc_outliers(series: Series) -> list:
     """
     lower, upper = typical_range(series)
     return [item < lower or item > upper for item in series]
+
+
+def expected_value(series: Series) -> float:
+    """Return mathematical expectation of indexed value in serie of it's probabilities
+
+    >>> round(expected_value(Series([.5,.3,.2], [1,2,3])), 1)
+    1.7
+    """
+    return sum([v*p for v,p in series.items()])
