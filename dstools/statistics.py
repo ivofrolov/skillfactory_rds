@@ -1,3 +1,4 @@
+from math import sqrt
 from pandas import Series
 
 
@@ -45,3 +46,18 @@ def expected_value(series: Series) -> float:
     1.7
     """
     return sum([v*p for v,p in series.items()])
+
+
+def confidence_interval(sample_mean, std_dev, size, level=95) -> tuple:
+    """Return range of plausible values (with certain level of confidence) for an unknown parameter 
+
+    >>> confidence_interval(16100, 12000, 36, level=95)
+    (12180.0, 20020.0)
+    """
+    critical_values = { 80: 1.28, 85: 1.44, 90: 1.65, 95: 1.96, 98: 2.33, 99: 2.58 }
+    if level not in critical_values.keys():
+        supported = ', '.join(map(str, critical_values.keys()))
+        raise ValueError(f'{level}% confidence level is not supported (use one of these: {supported})')
+
+    error = critical_values[level] * std_dev / sqrt(size)
+    return (sample_mean-error, sample_mean+error)
