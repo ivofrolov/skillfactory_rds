@@ -1,5 +1,6 @@
 from math import sqrt
 from pandas import Series
+from scipy.stats import norm, t
 
 
 def typical_range(series: Series, interpolation: str = 'midpoint') -> tuple:
@@ -30,7 +31,7 @@ def has_outliers(series: Series) -> bool:
 
 
 def loc_outliers(series: Series) -> list:
-    """Return a boolean array to locate outliers in `pandas.Series` data sample
+    """Return a boolean array to locate outliers in data sample
 
     >>> loc_outliers(Series([1,2,3,4,5,6,12]))
     [False, False, False, False, False, False, True]
@@ -40,7 +41,8 @@ def loc_outliers(series: Series) -> list:
 
 
 def expected_value(series: Series) -> float:
-    """Return mathematical expectation of indexed value in serie of it's probabilities
+    """Return mathematical expectation of indexed value
+    in serie of it's probabilities
 
     >>> round(expected_value(Series([.5,.3,.2], [1,2,3])), 1)
     1.7
@@ -48,16 +50,28 @@ def expected_value(series: Series) -> float:
     return sum([v*p for v,p in series.items()])
 
 
-def confidence_interval(sample_mean, std_dev, size, level=95) -> tuple:
-    """Return range of plausible values (with certain level of confidence) for an unknown parameter 
+def confidence_interval_norm(alpha, sigma, size, mean):
+    """Return range of plausible values (with certain level of confidence
+    for an unknown parameter) when standard deviation of population is known
+    or when calculating interval for proporion
 
-    >>> confidence_interval(16100, 12000, 36, level=95)
-    (12180.0, 20020.0)
+    f.e. confidence interval of 99% for mean value of 3540 on 250 samples
+    with population deviation of 1150
+    >>> tuple(map(round, confidence_interval_norm(0.01, 1150, 250, 3540)))
+    (3353, 3727)
     """
-    critical_values = { 80: 1.28, 85: 1.44, 90: 1.65, 95: 1.96, 98: 2.33, 99: 2.58 }
-    if level not in critical_values.keys():
-        supported = ', '.join(map(str, critical_values.keys()))
-        raise ValueError(f'{level}% confidence level is not supported (use one of these: {supported})')
+    error = -norm.ppf(alpha/2) * sigma / sqrt(size)
+    return mean-error, mean+error
 
-    error = critical_values[level] * std_dev / sqrt(size)
-    return (sample_mean-error, sample_mean+error)
+
+def confidence_interval_t(alpha, s, size, mean):
+    """Return range of plausible values (with certain level of confidence
+    for an unknown parameter) when only sample standard deviation is known
+    
+    f.e. confidence interval of 95% for mean value of 2000 on 15 samples
+    with sample deviation of 400
+    >>> tuple(map(round, confidence_interval_t(0.05, 400, 15, 2000)))
+    (1778, 2222)
+    """
+    error = -t.ppf(alpha/2, size-1) * s / sqrt(size)
+    return mean-error, mean+error
