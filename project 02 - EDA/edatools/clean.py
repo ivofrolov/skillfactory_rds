@@ -1,10 +1,10 @@
-import pandas as pd
+from pandas import DataFrame
 
 
-def check_anomalies(df: pd.DataFrame, actions: dict) -> dict:
-    """Checks if some values are 
+def check_anomalies(df: DataFrame, actions: dict) -> dict:
+    """Returns values from the dataset that do not meet certain restrictions
 
-    Key of `actions` parameter is a column name, and value is a dict of any supported actions:
+    Key of `actions` dict is a column name, and value is a dict of any supported actions:
         `restrict`: tuple -- restrict field to a list of possible values
     """
     result = {}
@@ -18,8 +18,8 @@ def check_anomalies(df: pd.DataFrame, actions: dict) -> dict:
     return result
 
 
-def most_common(df: pd.DataFrame, columns: list, threshold: float = .75) -> dict:
-    """Returns most common values in each of nominative variables in dataset"""
+def most_common(df: DataFrame, columns: list, threshold: float = .75) -> dict:
+    """Yields most common values in each of nominative variables in dataset"""
     for column in columns:
         sample = df[column].agg(lambda s: s.value_counts() / s.count())
         result = sample[sample > threshold]

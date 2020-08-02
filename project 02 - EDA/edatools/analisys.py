@@ -1,9 +1,13 @@
 from itertools import combinations
-import pandas as pd
+from pandas import DataFrame
 from scipy.stats import ttest_ind
 
 
-def stat_diff(df: pd.DataFrame, var_col: str, char_col: str, max_chars: int = 10):
+def stat_diff(
+        df: DataFrame,
+        var_col: str,
+        char_col: str,
+        max_chars: int = 10) -> bool:
     """Returns whether there is a statistical difference in the distribution
     of studied variable (`var_col`) by nominative characteristics (`char_col`)
     """
@@ -12,7 +16,7 @@ def stat_diff(df: pd.DataFrame, var_col: str, char_col: str, max_chars: int = 10
     for comb in char_combs:
         result = ttest_ind(df.loc[char_sample == comb[0], var_col],
                            df.loc[char_sample == comb[1], var_col])
-        # поправка Бонферони
-        if result.pvalue <= 0.05/len(char_combs):
+        # Bonferroni correction
+        if result.pvalue <= 0.05 / len(char_combs):
             return True
     return False
