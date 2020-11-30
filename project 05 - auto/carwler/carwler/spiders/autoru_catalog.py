@@ -10,43 +10,39 @@ class AutoruCatalogSpider(CrawlSpider):
     name = 'autoru_catalog'
     allowed_domains = ('auto.ru',)
     start_urls = (
-        'https://auto.ru/htmlsitemap/mark_model_tech_1.html',
-        'https://auto.ru/htmlsitemap/mark_model_tech_2.html',
-        'https://auto.ru/htmlsitemap/mark_model_tech_3.html',
-        'https://auto.ru/htmlsitemap/mark_model_tech_4.html',
-        'https://auto.ru/htmlsitemap/mark_model_tech_5.html',
-        'https://auto.ru/htmlsitemap/mark_model_tech_6.html',
+        'https://auto.ru/htmlsitemap/mark_model_generation_1.html',
+        'https://auto.ru/htmlsitemap/mark_model_generation_2.html',
     )
     rules = (
-        Rule(LinkExtractor(allow=('catalog/cars/.+',)), callback='parse_item'),
+        Rule(LinkExtractor(allow=('/catalog/cars/.+',)), callback='parse_car_gen'),
     )
 
-    def parse_item(self, response):
-        loader = AutoruCarSpecLoader(item=CarSpecification())
+    def parse_car_gen(self, response):
+        loader = AutoruCarSpecLoader(item=CarSpecification(), selector=response)
 
-        loader.add_value('title', response.meta.get('link_text'))
+        name_loader = loader.nested_css('.search-form-v2-mmm__breadcrumbs')
+        for index, field in enumerate(('brand', 'model', 'generation', 'body_type'), start=1):
+            name_loader.add_xpath(field, f'./a[{index}]/text()')
+        
+        loader.add_css('rating', '.catalog-generation__rating-circle-number::text')
+        loader.add_css('reviews_count', '.reviews-summary__reviews-count::text', re=r'\d+')
 
-        qual_list = response.css('.search-form-v2-mmm__breadcrumbs a::text').getall()
-        for index, field in enumerate(('brand', 'model', 'generation', 'body_type')):
-            loader.add_value(field, qual_list[index])
+        item = loader.load_item()
+        
+        for spec_url in response.css('.catalog__section_opinions a::attr(href)').getall():
+            yield response.follow(
+                url=spec_url, callback=self.parse_spec, cb_kwargs=dict(item=item.deepcopy()))
+
+    def parse_spec(self, response, item):
+        loader = AutoruCarSpecLoader(item=item)
 
         mod = response.css('.catalog-table__row_active a::text').get()
         loader.add_value('modification', mod)
         
-        spec_selector = response.css('.catalog__details-group dl')
-        spec_list = spec_selector.css('dt::text, dd::text').getall()
-        
-        excl_fields = {'title', 'rating', 'reviews', 'brand', 'model', 'generation', 'body_type'}
-        spec_fields = set(loader.item.fields) - excl_fields
+        gen_fields = {'rating', 'reviews_count', 'brand', 'model', 'generation', 'body_type', 'modification'}
+        spec_fields = set(loader.item.fields) - gen_fields
+        spec_list = response.css('.catalog__details-group dl').css('dt::text, dd::text').getall()
         for field in spec_fields:
             loader.add_value(field, spec_list)  # field processor will find proper spec
         
-        card_url = response.css('.content__page .catalog__tabs a').attrib['href']
-        return response.follow(
-            url=card_url, callback=self.parse_additional_info, cb_kwargs=dict(item=loader.load_item()))
-
-    def parse_additional_info(self, response, item):
-        loader = AutoruCarSpecLoader(item=item, selector=response)
-        loader.add_css('rating', '.catalog-generation__rating-circle-number::text')
-        loader.add_css('reviews', '.reviews-summary__reviews-count::text', re=r'\d+')
         return loader.load_item()
