@@ -9,6 +9,7 @@ from scrapy.item import Item, Field
 class CarSpecification(Item):
     title = Field()
     rating = Field()
+    reviews = Field()
     brand = Field()
     model = Field()
     generation = Field()
