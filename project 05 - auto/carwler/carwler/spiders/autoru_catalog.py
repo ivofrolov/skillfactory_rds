@@ -29,9 +29,12 @@ class AutoruCatalogSpider(CrawlSpider):
 
         item = loader.load_item()
         
-        for spec_url in response.css('.catalog__section_opinions a::attr(href)').getall():
-            yield response.follow(
-                url=spec_url, callback=self.parse_spec, cb_kwargs=dict(item=item.deepcopy()))
+        return response.follow(
+            url='specifications/', callback=self.extract_spec_urls, cb_kwargs=dict(item=item))
+
+    def extract_spec_urls(self, response, item):
+        for spec_url in response.css('.catalog-table_packages a.catalog-tab-item::attr(href)').getall():
+            yield response.follow(url=spec_url, callback=self.parse_spec, cb_kwargs=dict(item=item.deepcopy()))
 
     def parse_spec(self, response, item):
         loader = AutoruCarSpecLoader(item=item)
