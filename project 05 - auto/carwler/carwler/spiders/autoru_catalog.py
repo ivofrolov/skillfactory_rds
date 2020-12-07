@@ -44,7 +44,7 @@ class AutoruCatalogSpider(CrawlSpider):
         
         gen_fields = {'rating', 'reviews_count', 'brand', 'model', 'generation', 'body_type', 'modification'}
         spec_fields = set(loader.item.fields) - gen_fields
-        spec_list = response.css('.catalog__details-group dl').css('dt::text, dd::text').getall()
+        spec_list = [el.css('::text').get() for el in response.css('.catalog__details-group dl').css('dt, dd')]
         for field in spec_fields:
             loader.add_value(field, spec_list)  # field processor will find proper spec
         

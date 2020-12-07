@@ -17,8 +17,14 @@ def select_spec(spec_list, loader_context):
     return None
 
 
+def strip(value):
+    if isinstance(value, str):
+        return value.strip()
+    return value
+
+
 class AutoruCarSpecLoader(ItemLoader):
-    default_input_processor = MapCompose(str.strip)
+    default_input_processor = MapCompose(strip)
     default_output_processor = TakeFirst()
 
     brand_country_in = Compose(select_spec, label='Страна марки')
