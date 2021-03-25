@@ -6,4 +6,4 @@
 3. [О вкусной и здоровой пище](project%2003%20-%20food/)
 4. [Компьютер говорит "Нет"](project%2004%20-%20scoring/)
 5. [Выбираем авто выгодно](project%2005%20-%20auto/)
-7. [Ford vs. Ferrari](project%2007%20-%20ford-vs-reffari/)
+7. [Ford vs. Ferrari](project%2007%20-%20ford-vs-ferrari/)
