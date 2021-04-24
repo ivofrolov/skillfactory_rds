@@ -1,4 +1,6 @@
-### Проекты курса по Data Science
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ivofrolov/skillfactory_rds/HEAD)
+
+# Проекты курса по Data Science
 
 0. [Угадай число](project%2000%20-%20github/)
 1. [Кто хочет стать миллионером?](project%2001%20-%20millionaire/)
